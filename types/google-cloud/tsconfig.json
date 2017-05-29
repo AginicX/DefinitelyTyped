@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": "types",
+    "typeRoots": [
+      "types"
+    ]
+  },
+  "include": [
+    "./**/*.ts"
+  ]
+}
