@@ -27,8 +27,8 @@ declare module '@google-cloud/datastore' {
         limit(n: number): this;
         offset(n: number): this;
         order(prop: string, opts?: { descending: boolean }): this;
-        runQuery<T = any>(opts?: GetOpts): Promise<[T[], QueryInfo]>;
-        runQueryStream<T = any>(opts?: GetOpts): ReadableStream<T>;
+        run<T = any>(opts?: GetOpts): Promise<[T[], QueryInfo]>;
+        runStream<T = any>(opts?: GetOpts): ReadableStream<T>;
         select(fields: string | string[]): this;
         start(cursor: string): this;
     }
