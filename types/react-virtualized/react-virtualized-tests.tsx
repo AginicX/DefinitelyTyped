@@ -405,11 +405,7 @@ export class ColumnSizerExample extends PureComponent<any, any> {
     _noColumnMaxWidthChange(event) {
         let columnMaxWidth = parseInt(event.target.value, 10)
 
-        if (isNaN(columnMaxWidth)) {
-            columnMaxWidth = undefined
-        } else {
-            columnMaxWidth = Math.min(1000, columnMaxWidth)
-        }
+        columnMaxWidth = isNaN(columnMaxWidth) ? undefined : Math.min(1000, columnMaxWidth)
 
         this.setState({ columnMaxWidth })
     }
@@ -417,11 +413,7 @@ export class ColumnSizerExample extends PureComponent<any, any> {
     _noColumnMinWidthChange(event) {
         let columnMinWidth = parseInt(event.target.value, 10)
 
-        if (isNaN(columnMinWidth)) {
-            columnMinWidth = undefined
-        } else {
-            columnMinWidth = Math.max(1, columnMinWidth)
-        }
+        columnMinWidth = isNaN(columnMinWidth) ? undefined : Math.max(1, columnMinWidth)
 
         this.setState({ columnMinWidth })
     }
@@ -1661,6 +1653,102 @@ export class TableExample extends PureComponent<any, any> {
         this.setState({
             useDynamicRowHeight: value
         })
+    }
+}
+
+import {TableCellProps} from "react-virtualized"
+
+export class DynamicHeightTableColumnExample extends PureComponent<any, any> {
+    state;
+    context;
+    _cache: CellMeasurerCache;
+    constructor(props, context) {
+        super(props, context)
+
+        this._cache = new CellMeasurerCache({
+            fixedWidth: true,
+            minHeight: 25
+        })
+
+        this._columnCellRenderer = this._columnCellRenderer.bind(this)
+        this._rowGetter = this._rowGetter.bind(this)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.width !== this.props.width) {
+            this._cache.clearAll()
+        }
+    }
+
+    render() {
+        const { width } = this.props
+
+        return (
+            <Table
+                deferredMeasurementCache={this._cache}
+                headerHeight={20}
+                height={400}
+                overscanRowCount={2}
+                rowClassName={'styles.tableRow'}
+                rowHeight={this._cache.rowHeight}
+                rowGetter={this._rowGetter}
+                rowCount={1000}
+                width={width}
+            >
+                <Column
+                    className={'styles.tableColumn'}
+                    dataKey='name'
+                    label='Name'
+                    width={125}
+                />
+                <Column
+                    className={'styles.tableColumn'}
+                    dataKey='color'
+                    label='Color'
+                    width={75}
+                />
+                <Column
+                    width={width - 200}
+                    dataKey='random'
+                    label='Dynamic text'
+                    cellRenderer={this._columnCellRenderer}
+                />
+            </Table>
+        )
+    }
+
+    _columnCellRenderer(args: TableCellProps) {
+        const { list } = this.props
+
+        const datum = list.get(args.rowIndex % list.size)
+        const content = args.rowIndex % 5 === 0
+            ? ''
+            : datum.randomLong
+
+        return (
+            <CellMeasurer
+                cache={this._cache}
+                columnIndex={0}
+                key={args.dataKey}
+                parent={args.parent}
+                rowIndex={args.rowIndex}
+            >
+                <div
+                    className={'styles.tableColumn'}
+                    style={{
+                        whiteSpace: 'normal'
+                    }}
+                >
+                    {content}
+                </div>
+            </CellMeasurer>
+        )
+    }
+
+    _rowGetter({ index }) {
+        const { list } = this.props
+
+        return list.get(index % list.size)
     }
 }
 
